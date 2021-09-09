@@ -30,7 +30,7 @@ const atc = (cb: Function) => {
 // GET items
 itemsRouter.get('/', atc(async (req: Request, res: Response, next: Function) => {
   const items: Item[] = await ItemService.findAll();
-  res.status(200).send(items);
+  res.status(200).send(JSON.stringify(items, null, 4));
 }));
 
 // GET items/:id
@@ -39,7 +39,7 @@ itemsRouter.get('/:id', atc(async (req: Request, res: Response, next: Function) 
   const item: Item = await ItemService.find(id);
 
   if (item) {
-    return res.status(200).send(item);
+    return res.status(200).send(JSON.stringify(item, null, 4));
   }
 
   res.status(404).send('Item not found');
@@ -48,23 +48,19 @@ itemsRouter.get('/:id', atc(async (req: Request, res: Response, next: Function) 
 // POST items
 itemsRouter.post('/', atc(async (req: Request, res: Response, next: Function) => {
   const item: BaseItem = req.body;
-
   const newItem = await ItemService.create(item);
-
-  res.status(201).send(`Item created: ${newItem}`);
+  res.status(201).json( { itemCreated: newItem });
 }));
 
 // PUT items/:id
 itemsRouter.put('/:id', atc(async (req: Request, res: Response, next: Function) => {
   const id: number = parseInt(req.params.id, 10);
-
   const itemUpdate: Item = req.body;
-
   const existingItem: Item = await ItemService.find(id);
 
   if (existingItem) {
     const updatedItem = await ItemService.update(id, itemUpdate);
-    return res.status(201).send(`Item Updated: ${updatedItem}`);
+    return res.status(201).json( { itemUpdated: updatedItem });
   }
 
   const newItem = await ItemService.create(itemUpdate);
